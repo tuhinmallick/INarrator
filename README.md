@@ -1,6 +1,6 @@
 # INarrator
 
-[Logo](https://github.com/keenborder786/INarrator/blob/main/Logo.png)
+![Logo](https://github.com/keenborder786/INarrator/blob/main/Logo.png)
 
 
 
