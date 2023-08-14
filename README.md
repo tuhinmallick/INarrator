@@ -1,16 +1,17 @@
 # INarrator
 
+[Logo](https://github.com/keenborder786/INarrator/blob/main/Logo.png)
+
 
 
 ## What am I trying to build?
 - https://inboxnarrator.com/?via=topaitools (Going to replicate this)
-- Going to make a chrome extension rather than an App
+- POC in form of Simple Flask Web-App. Might Move to chrome extension
 - Going to make it open-source for people to use.
 - Going to use a model other gpt-3?
 
-
 ## Steps:
-
+- Design the email subpackage so you fetch email data for the user (Latest Unread Emails)
 - Going to make use of a langchain agent.
 - How am I going to get the email data and what will be the frequency e.g every day unread messages?????
 - How do I handle pictures and links?
