@@ -1,6 +1,7 @@
-from narrator.email import Gmail,User
+from inarrator.email import Gmail,User
 
 gmail = Gmail()
-user = User(gmail)
+gmail.authenticate(credentials_path="credentials.json")
+user = User([gmail])
 user.authenticate()
-print(user.read_latest_emails())
+user.read_latest_emails()

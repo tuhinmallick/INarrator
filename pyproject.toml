@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "inarrator"
+version = "0.0.1"
+description = "Summarize and Narrate your emails through power of LLMs."
+authors = ["keenborder786 <21110290@lums.edu.pk>"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+langchain = "^0.0.265"
+google-api-python-client = "^2.97.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+
+[tool.ruff]
+select = [
+  "E",  # pycodestyle
+  "F",  # pyflakes
+  "I",  # isort
+  "D", # pydocstyle
+]
+ignore = ["D203","D213","D205"]
+
+line-length = 120
+
+[tool.black]
+
+line-length = 120
+
+[tool.mypy]
+
+ignore_missing_imports = true
+no_site_packages = true
