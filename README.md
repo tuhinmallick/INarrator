@@ -1,6 +1,6 @@
 # INarrator
 
-![Logo](https://github.com/keenborder786/INarrator/blob/main/Logo.png)
+![Logo](https://github.com/keenborder786/INarrator/blob/main/assets/Logo.png)
 
 
 
@@ -8,7 +8,7 @@
 - https://inboxnarrator.com/?via=topaitools (Going to replicate this)
 - POC in form of Simple Flask Web-App. Might Move to chrome extension
 - Going to make it open-source for people to use.
-- Going to use a model other gpt-3?
+- Going to use a model other than gpt-3?
 
 ## Steps:
 - Design the email subpackage so you fetch email data for the user (Latest Unread Emails)

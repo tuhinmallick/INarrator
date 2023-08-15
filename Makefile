@@ -1,11 +1,11 @@
 lint:
-	black . --check
-	ruff --config pyproject.toml .
-	mypy .
+	black inarrator --check
+	ruff --config pyproject.toml inarrator
+	mypy inarrator
 
 format:
-	black .
-	ruff --config pyproject.toml --fix .
+	black inarrator
+	ruff --config pyproject.toml --fix inarrator
 
 spell_check:
 	poetry run codespell --toml pyproject.toml
