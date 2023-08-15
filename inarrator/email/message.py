@@ -1,14 +1,72 @@
+from __future__ import annotations
 
-from typing import Any
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Any, Union
+
+import html2text
+
+from inarrator.utils import base64url_decode
+
 
 @dataclass
-class Message:
-    id: int
+class IMessage(ABC):
     to: str
     fro: str
-    raw_attachments: Any
-    raw_payload: Any
+    subject: str
+    body: str
 
-    def payload(self, raw_payload) -> str:
-        return raw_payload
+    @classmethod
+    @abstractmethod
+    def parse_message(cls, **kwargs: Any) -> Union[IMessage, None]:
+        """Parse the Raw Message payload and create a message instance.
+
+        Args:
+        ----
+            kwargs: Message Payload Keyword Argument
+
+        Returns:
+        -------
+            IMessage Instance
+
+        """
+        pass
+
+
+@dataclass
+class GmailMessage(IMessage):
+    to: str
+    fro: str
+    subject: str
+    body: str
+
+    @classmethod
+    def parse_message(cls, **kwargs: Any) -> Union[IMessage, None]:
+        h = html2text.HTML2Text()
+        h.ignore_links = True
+        h.ignore_images = True
+        raw_payload = kwargs.get("raw_message_payload", {})
+        if not raw_payload:
+            raise ValueError(
+                "In order parse Gmail Email Payload you need to provide raw_message_payload"
+            )
+        payload = raw_payload.get("payload")
+        headers = payload.get("headers")
+        body = payload.get("body").get("data")
+        if not body:
+            return None
+        headers_dict = {"To": "", "From": "", "Subject": ""}
+        for header in headers:
+            if header.get("name") == "From":
+                headers_dict["From"] = header.get("value")
+            elif header.get("name") == "To":
+                headers_dict["To"] = header.get("value")
+            elif header.get("Subject") == "Subject":
+                headers_dict["Subject"] = header.get("value")
+
+        return cls(
+            to=headers_dict.get("To", ""),
+            fro=headers_dict.get("From", ""),
+            subject=headers_dict.get("Subject", ""),
+            body=h.handle(base64url_decode(body)),
+        )
