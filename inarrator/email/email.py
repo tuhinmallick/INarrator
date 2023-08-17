@@ -123,3 +123,7 @@ class Gmail(IEmail):
 
     def get_email(self, **kwargs: Any) -> Any:
         return self.service.users().messages().get(userId="me", id=kwargs.get("gmail_id")).execute()
+
+
+class OutLook(IEmail):
+    pass
