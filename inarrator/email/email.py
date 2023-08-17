@@ -21,11 +21,10 @@ class IEmail(ABC):
     service: Any = None
     """Main API Python Client"""
 
-    @abstractmethod
     @property
     def _type(self) -> str:
         """Type of Email API."""
-        pass
+        return "IEmail"
 
     @abstractmethod
     def authenticate(self, **kwargs: Any) -> None:

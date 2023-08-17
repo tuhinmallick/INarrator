@@ -1,5 +1,7 @@
+import concurrent.futures
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Sequence
+from concurrent.futures import ProcessPoolExecutor
+from typing import Any, Dict, List, Sequence, Tuple
 
 from inarrator.email.email import IEmail
 from inarrator.email.message import IMessage
@@ -15,13 +17,36 @@ class IUser(ABC):
         """Authentication of each email API for the given user."""
         pass
 
+    @classmethod
     @abstractmethod
-    def read_latest_emails(self) -> Dict[str, Sequence[IMessage]]:
-        """Getting the latest unread emails from the user.
+    def read_email_specific_client(
+        cls, email: IEmail, **kwargs: Any
+    ) -> Tuple[str, Sequence[IMessage]]:
+        """Reads  the user email for the specific email client.
 
         Args:
         ----
-            kwargs: Keyword Argument to filter out the latest emails
+            email: IEmail Instance.
+
+            kwargs: Keyword Argument be used when fetching the email for the given client
+
+        Returns:
+        -------
+            A tuple consist of IEmail child class name and sequence of fetched messages.
+
+        """
+
+        pass
+
+    @abstractmethod
+    def read_latest_emails(self, **kwargs: Any) -> Dict[str, Sequence[IMessage]]:
+        """Getting the latest unread emails for a user in a parallel manner.
+        Spawns multiple processors to fetch emails from each of the email client for
+        the given user in a parallel manner.
+
+        Args:
+        ----
+            kwargs: Keyword Argument be used when fetching the emails.
 
         Returns:
         -------
@@ -47,10 +72,23 @@ class User(IUser):
                     """
                 )
 
+    @classmethod
+    def read_email_specific_client(
+        cls, email: IEmail, **kwargs: Any
+    ) -> Tuple[str, Sequence[IMessage]]:
+        return email._type, email.get_latest_emails(**kwargs)
+
     def read_latest_emails(self, **kwargs: Any) -> Dict[str, Sequence[IMessage]]:
         emails_dict = {}
-        for email in self.emails:
-            emails_dict[email._type] = email.get_latest_emails(**kwargs)
+        with ProcessPoolExecutor() as executor:
+            email_futures = [
+                executor.submit(User.read_email_specific_client, email, **kwargs)
+                for email in self.emails
+            ]
+        for future in concurrent.futures.as_completed(email_futures):
+            email_type, latest_emails = future.result()
+            emails_dict[email_type] = latest_emails
+
         return emails_dict
 
     def summarize_latest_emails(self) -> str:
