@@ -2,17 +2,20 @@
 
 from __future__ import annotations
 
+import json
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Sequence
+from typing import Any, Dict, Sequence
 
+import msal
+import requests_oauthlib
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from inarrator.email.message import GmailMessage, IMessage
+from inarrator.email.message import GmailMessage, IMessage, OutlookMessage
 
 
 class IEmail(ABC):
@@ -76,10 +79,10 @@ class Gmail(IEmail):
         if "credentials_path" not in kwargs:
             raise ValueError("Need to provide Gmail API credential json file path")
         creds = None
-        if os.path.exists(
-            "token.json"
-        ):  # TODO: This will go to a storage system to save user tokens
-            creds = Credentials.from_authorized_user_file("token.json", kwargs.get("gmail_scope"))
+        if os.path.exists("gmail_token.json"):
+            creds = Credentials.from_authorized_user_file(
+                "gmail_token.json", kwargs.get("gmail_scope")
+            )
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
@@ -89,7 +92,7 @@ class Gmail(IEmail):
                 )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open("token.json", "w") as token:
+            with open("gmail_token.json", "w") as token:
                 token.write(creds.to_json())
         try:
             # Call the Gmail API
@@ -99,6 +102,8 @@ class Gmail(IEmail):
             print(f"An error occurred: {error}")
 
     def get_latest_emails(self, **kwargs: Any) -> Sequence[IMessage]:
+        if not self.service:
+            raise ValueError("You need to authenticate Gmail API")
         results = (
             self.service.users()
             .messages()
@@ -126,4 +131,57 @@ class Gmail(IEmail):
 
 
 class OutLook(IEmail):
-    pass
+    service: Any = None
+
+    @property
+    def _type(self) -> str:
+        return "Outlook"
+
+    def _token(self, **kwargs: Any) -> Dict:
+        """Gets the user access token needed to authenticate Microsoft Graph API"""
+        if "credentials_path" not in kwargs:
+            raise ValueError("Need to provide Outlook API credential json file path")
+        with open(kwargs["credentials_path"], "r") as f:
+            credentials_json = json.load(f)
+            f.close()
+        client_instance = msal.PublicClientApplication(
+            client_id=credentials_json.get("application_id"), authority=kwargs.get("authority_url")
+        )
+        result = client_instance.acquire_token_interactive(scopes=kwargs.get("outlook_scope"))
+        if "access_token" not in result:
+            raise ValueError("Authentication Error for Outlook Client")
+        return result
+
+    def authenticate(self, **kwargs: Any) -> None:
+        if not os.path.exists("outlook_token.json"):
+            token = self._token(**kwargs)
+            with open("outlook_token.json", "w") as token_json:
+                token_json.write(json.dumps(token))
+
+        elif os.path.exists("outlook_token.json"):
+            with open("outlook_token.json", "r") as f:
+                token = json.load(f)
+                f.close()
+        self.service = requests_oauthlib.OAuth2Session(token=token)
+
+    def get_latest_emails(self, **kwargs: Any) -> Sequence[IMessage]:
+        if not self.service:
+            raise ValueError("You need to authenticate Outlook API")
+        messages = self.service.get(
+            f"""
+            https://graph.microsoft.com/v1.0/me/messages?$top=
+            {kwargs.get('outlook_max_emails',10)}&$filter=isRead ne true"""
+        ).json()
+        messages = messages.get("value")
+        messages_list = []
+        for message in messages:
+            raw_message_payload = self.get_email(outlook_id=message.get("id")).json()
+            message = OutlookMessage.parse_message(raw_message_payload=raw_message_payload)
+            if message:
+                messages_list.append(message)
+        return messages_list
+
+    def get_email(self, **kwargs: Any) -> Any:
+        return self.service.get(
+            f"https://graph.microsoft.com/v1.0/me/messages/{kwargs.get('outlook_id')}"
+        )

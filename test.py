@@ -1,19 +1,27 @@
-from inarrator.email import Gmail, User
+from inarrator.email.email import OutLook, Gmail
 
+outlook = OutLook()
 gmail = Gmail()
-gmail.authenticate(credentials_path="credentials.json")
-gmail2 = Gmail()
-gmail2.authenticate(credentials_path="credentials.json")
-gmail3 = Gmail()
-gmail3.authenticate(credentials_path="credentials.json")
-gmail4 = Gmail()
-gmail4.authenticate(credentials_path="credentials.json")
-gmail5 = Gmail()
-gmail5.authenticate(credentials_path="credentials.json")
-user = User([gmail,gmail2,gmail3,gmail4,gmail5])
-user.authenticate()
-emails = user.read_latest_emails(
-    gmail_filters="from:(-noreply -no-reply) is:unread -category:social -category:promotions -unsubscribe",
-    gmail_max_emails="15",
+outlook.authenticate(
+    credentials_path="/home/mohtashimkhan/INarrator/outlook_credentials.json",
+    authority_url="https://login.microsoftonline.com/consumers/",
+    outlook_scope=[
+        "User.Read",
+        "Mail.ReadWrite",
+        "Mail.ReadBasic.Shared",
+        "Mail.ReadBasic",
+        "Mail.Read.Shared",
+        "Mail.Read",
+    ],
 )
-print(emails)
+gmail.authenticate(
+    credentials_path="/home/mohtashimkhan/INarrator/gmail_credentials.json",
+    gmail_scope=["https://www.googleapis.com/auth/gmail.readonly"],
+)
+print(
+    gmail.get_latest_emails(
+        gmail_filters="from:(-noreply -no-reply) is:unread -category:social -category:promotions -unsubscribe",
+        gmail_max_emails="10",
+    )
+)
+print(outlook.get_latest_emails(outlook_max_emails="10"))

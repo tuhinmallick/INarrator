@@ -70,3 +70,29 @@ class GmailMessage(IMessage):
             subject=headers_dict.get("Subject", ""),
             body=h.handle(base64url_decode(body)),
         )
+
+
+@dataclass
+class OutlookMessage(IMessage):
+    to: str
+    fro: str
+    subject: str
+    body: str
+
+    @classmethod
+    def parse_message(cls, **kwargs: Any) -> Union[IMessage, None]:
+        h = html2text.HTML2Text()
+        h.ignore_links = True
+        h.ignore_images = True
+        raw_payload = kwargs.get("raw_message_payload", {})
+        if not raw_payload:
+            raise ValueError(
+                "In order parse Outlook Email Payload you need to provide raw_message_payload"
+            )
+        subject = raw_payload["subject"]
+        message_body = h.handle(raw_payload["body"].get("content"))
+        fro = raw_payload.get("from").get("emailAddress").get("address")
+        to = ";".join(
+            [email.get("emailAddress").get("address") for email in raw_payload.get("toRecipients")]
+        )
+        return cls(to=to, fro=fro, subject=subject, body=message_body)
