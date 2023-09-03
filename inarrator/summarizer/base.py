@@ -1,9 +1,18 @@
-from langchain.chains.summarize import load_summarize_chain
-from langchain.document_loaders import WebBaseLoader
-from langchain.llms import HuggingFaceHub
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from inarrator.email.message import IMessage
+from langchain.chains import LLMChain
 
-llm = HuggingFaceHub(repo_id="google/pegasus-large", huggingfacehub_api_token="")
-loader = WebBaseLoader("https://lilianweng.github.io/posts/2023-06-23-agent/")
-docs = loader.load()
-chain = load_summarize_chain(llm, chain_type="stuff")
-print(chain.run(docs))
+class ISummarizer(ABC):
+    def __init__(self, api_token: str, model_name: str):
+        self.chain = self.load_chain(api_token, model_name)
+
+    @classmethod
+    @abstractmethod
+    def load_chain(self, api_token: str, model_name: str) -> LLMChain:
+        """"""
+        pass
+
+    def summarize(self, message: IMessage) -> str:
+        """"""
+        pass
