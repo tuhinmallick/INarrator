@@ -8,7 +8,7 @@
 
 TODO
 
-## How to use it?
+## Use the Package
 
 - Gmail
 
