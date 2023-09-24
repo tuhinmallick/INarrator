@@ -5,7 +5,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.document_loaders import WebBaseLoader
 import os
 
-
+# Gmail
 gmail = Gmail()
 gmail.authenticate(
     credentials_path="/home/mohtashimkhan/INarrator/gmail_credentials.json",
@@ -24,3 +24,7 @@ print(model.summarize(documents[0]))
 
 
 
+# Outlook
+outlook = OutLook()
+outlook.authenticate(credentials_path = 'outlook_credentials.json')
+print(outlook.get_latest_emails())
