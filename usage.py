@@ -8,7 +8,7 @@ import os
 # Gmail
 gmail = Gmail()
 gmail.authenticate(
-    credentials_path="/home/mohtashimkhan/INarrator/gmail_credentials.json",
+    credentials_path="gmail_credentials.json",
     gmail_scope=["https://www.googleapis.com/auth/gmail.readonly"],
 )
 emails = gmail.get_latest_emails(
