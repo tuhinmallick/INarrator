@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import datetime
 import json
 import os
-import datetime
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Sequence
 
@@ -153,13 +153,13 @@ class OutLook(IEmail):
             raise ValueError("Authentication Error for Outlook Client")
         return result
 
-    def _token_expired(self, token_id_claim:Dict) -> bool:
+    def _token_expired(self, token_id_claim: Dict) -> bool:
         """Checks if the given token has expired or not"""
         now = datetime.datetime.now()
-        if datetime.datetime.fromtimestamp(token_id_claim['exp'])<now:
+        if datetime.datetime.fromtimestamp(token_id_claim["exp"]) < now:
             return True
         return False
-    
+
     def authenticate(self, **kwargs: Any) -> None:
         if not os.path.exists("outlook_token.json"):
             token = self._token(**kwargs)
@@ -170,7 +170,7 @@ class OutLook(IEmail):
             with open("outlook_token.json", "r") as f:
                 token = json.load(f)
                 f.close()
-            if self._token_expired(token['id_token_claims']):
+            if self._token_expired(token["id_token_claims"]):
                 token = self._token(**kwargs)
                 with open("outlook_token.json", "w") as token_json:
                     token_json.write(json.dumps(token))

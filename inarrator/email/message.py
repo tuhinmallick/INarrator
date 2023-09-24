@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Union
 
 import html2text
+from langchain.schema import Document
 
 from inarrator.utils import base64url_decode
 
@@ -15,6 +16,7 @@ class IMessage(ABC):
     fro: str
     subject: str
     body: str
+    email_provider: str = ""
 
     @classmethod
     @abstractmethod
@@ -32,6 +34,24 @@ class IMessage(ABC):
         """
         pass
 
+    def message_to_document(email: IMessage) -> Document:
+        """
+        Converts an email message into a Document.
+
+        Args:
+            email (IMessage): The email message to convert.
+
+        Returns:
+            Document: A Langchain Document instance.
+        """
+        return Document(page_content=str(email))
+
+    def __str__(self) -> str:
+        """Returns a string representation of the message."""
+        return (
+            f"FROM: {self.fro} \n TO: {self.to} \n SUBJECT: {self.subject} \n BODY:\n {self.body}"
+        )
+
 
 @dataclass
 class GmailMessage(IMessage):
@@ -39,6 +59,7 @@ class GmailMessage(IMessage):
     fro: str
     subject: str
     body: str
+    email_provider: str = "Gmail"
 
     @classmethod
     def parse_message(cls, **kwargs: Any) -> Union[IMessage, None]:
@@ -78,6 +99,7 @@ class OutlookMessage(IMessage):
     fro: str
     subject: str
     body: str
+    email_provider: str = "Outlook"
 
     @classmethod
     def parse_message(cls, **kwargs: Any) -> Union[IMessage, None]:

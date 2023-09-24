@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from inarrator.email.message import IMessage
-from langchain.prompts import PromptTemplate
-from langchain.llms import HuggingFaceHub
+from abc import ABC
+from typing import List, Union
+
 from langchain.chains import LLMChain
-from inarrator.summarizer.prompt import EMAIL_PROMPT
+from langchain.llms import HuggingFaceHub
+from langchain.prompts import PromptTemplate
+
+from inarrator.email.message import IMessage
+from inarrator.summarizer.prompt import HUGGING_FACE_EMAIL_PROMPT
 
 
 class HuggingFaceModel(ABC):
@@ -14,21 +17,22 @@ class HuggingFaceModel(ABC):
 
     @classmethod
     def load_chain(self, api_token: str, model_name: str) -> LLMChain:
-        """"""
-
         return LLMChain(
             llm=HuggingFaceHub(huggingfacehub_api_token=api_token, repo_id=model_name),
             prompt=PromptTemplate(
-                template=EMAIL_PROMPT, input_variables=["fro", "to", "subject", "body"]
+                template=HUGGING_FACE_EMAIL_PROMPT, input_variables=["fro", "to", "subject", "body"]
             ),
         )
 
-    def summarize(self, message: IMessage) -> str:
-        """"""
-        return self.chain.predict(
-                fro=message.fro,
-                to=message.to,
-                body=message.body,
-                subject=message.subject,
-            
-        )
+    def summarize(self, messages: Union[IMessage, List[IMessage]]) -> str:
+        if isinstance(messages, list):
+            raise ValueError(
+                "HuggingFace Hub Model do not currently support summarizing multiple messages"
+            )
+        elif isinstance(messages, IMessage):
+            return self.chain.predict(
+                fro=messages.fro,
+                to=messages.to,
+                body=messages.body,
+                subject=messages.subject,
+            )
