@@ -13,7 +13,7 @@ pip install inarrator
 
 ## Use the Package
 
-- Gmail
+### Gmail
 
 1. In the Google Cloud console, enable the Gmail [API](https://console.cloud.google.com/flows/enableapi?apiid=gmail.googleapis.com).
 
@@ -80,6 +80,6 @@ pip install inarrator
 
 
 
-- Outlook
+### Outlook
 
 
