@@ -8,7 +8,6 @@
 
 ```
 pip install inarrator
-
 ```
 
 ## Use the Package
