@@ -35,6 +35,8 @@ pip install inarrator
 - Chat-GPT Example
 
     ```python
+    from inarrator.email import Gmail
+    from inarrator.summarizer.gpt import GPTModel
 
     gmail = Gmail()
     gmail.authenticate(
@@ -46,8 +48,7 @@ pip install inarrator
             gmail_filters="from:(-noreply -no-reply) is:unread -category:social -category:promotions -unsubscribe", # 
             gmail_max_emails="30",
         )
-    os.environ['OPENAI_API_KEY'] = ''
-    model = GPTModel(model_name = 'gpt-3.5-turbo-16k')
+    model = GPTModel(model_name = 'gpt-3.5-turbo-16k',api_token = "") # OPENAI_API_KEY
     documents = []
     for email in emails:
         documents.append(email)
@@ -59,6 +60,10 @@ pip install inarrator
 
     ```python
 
+    from inarrator.email import Gmail
+    from inarrator.summarizer import HuggingFaceModel
+
+
     gmail = Gmail()
     gmail.authenticate(
         credentials_path="gmail_credentials.json",
@@ -68,7 +73,7 @@ pip install inarrator
             gmail_filters="from:(-noreply -no-reply) is:unread -category:social -category:promotions -unsubscribe",
             gmail_max_emails="30",
         )
-    model =  HuggingFaceModel(api_token="",model_name="tuner007/pegasus_summarizer")
+    model =  HuggingFaceModel(model_name="tuner007/pegasus_summarizer", api_token="") # HF_HUB_TOKEN
     print(model.summarize(emails[0])) # Hugging Face Hub Models currently can summarize one email at a time.
     ```
 
@@ -77,3 +82,79 @@ pip install inarrator
 ### Outlook
 
 
+1.  Create a New App [Registration](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade)
+![](https://github.com/keenborder786/INarrator/blob/main/assets/Image_1_Outlook.png)
+
+2. Request API permissions (Only Mail.Read)
+
+![](https://github.com/keenborder786/INarrator/blob/main/assets/Image_3_Outlook.png)
+
+
+3. Configure the Platform
+
+    - Add a Mobile and Desktop Application
+    ![](https://github.com/keenborder786/INarrator/blob/main/assets/Image_4_Outlook.png)
+    - Choose the Following Configuration
+    ![](https://github.com/keenborder786/INarrator/blob/main/assets/Image_5_Outlook.png)
+
+
+4. Create a new client secret
+
+    - Click on `+ New client secret`.
+    ![](https://github.com/keenborder786/INarrator/blob/main/assets/Image_2_Outlook.png)
+    - Now create the following JSON and name it `outlook_credentials.json`. You can get `Application (client) ID` & `Directory (tenant) ID` from overview of your App.
+    ```json
+    {"application_id":"Application (client) ID",
+    "authority_url":"https://login.microsoftonline.com/{Directory (tenant) ID}",
+    "outlook_scope":["Mail.Read"]}
+    ```
+5. Since OAuth only work https but our redirect URI is localhost, we would have to make the following environment variable
+
+```console
+export OAUTHLIB_INSECURE_TRANSPORT=1
+```
+
+5. Use the inarrator 
+
+- Chat-GPT Example
+
+    ```python
+    from inarrator.email import OutLook
+    from inarrator.summarizer.gpt import GPTModel
+
+    outlook = OutLook()
+    outlook.authenticate(
+        credentials_path="outlook_credentials.json",
+        outlook_scope=["Mail.Read"],
+    )
+    emails = outlook.get_latest_emails(
+                outlook_max_emails=5,
+            )
+    model = GPTModel(model_name = 'gpt-3.5-turbo-16k',api_token = "") # OPENAI_API_KEY
+    documents = []
+    for email in emails:
+        documents.append(email)
+    print(model.summarize(documents))
+
+    ```
+
+- Hugging Face Hub Example
+
+    ```python
+
+    from inarrator.email import OutLook
+    from inarrator.summarizer.huggingface import HuggingFaceModel
+
+
+    outlook = OutLook()
+    outlook.authenticate(
+        credentials_path="outlook_credentials.json",
+        outlook_scope=["Mail.Read"],
+    )
+    emails = outlook.get_latest_emails(
+                outlook_max_emails=5,
+            )
+    model =  HuggingFaceModel(model_name="tuner007/pegasus_summarizer", api_token="") # HF_HUB_TOKEN
+    print(model.summarize(emails[0])) # Hugging Face Hub Models currently can summarize one email at a time.    
+    
+    ```

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "inarrator"
-version = "0.0.1"
+version = "0.0.3"
 description = "Summarize and Narrate your emails through power of LLMs."
 authors = ["keenborder786 <21110290@lums.edu.pk>"]
 readme = "README.md"

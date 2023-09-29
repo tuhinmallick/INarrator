@@ -146,9 +146,11 @@ class OutLook(IEmail):
             credentials_json = json.load(f)
             f.close()
         client_instance = msal.PublicClientApplication(
-            client_id=credentials_json.get("application_id"), authority=kwargs.get("authority_url")
+            client_id=credentials_json.get("application_id"),
+            authority=credentials_json.get("authority_url"),
         )
         result = client_instance.acquire_token_interactive(scopes=kwargs.get("outlook_scope"))
+        print(result)
         if "access_token" not in result:
             raise ValueError("Authentication Error for Outlook Client")
         return result
