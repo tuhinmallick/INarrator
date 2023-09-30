@@ -60,6 +60,7 @@ class IUser(ABC):
 
 
 class User(IUser):
+    # TODO: Need to Modify and Update the Class to make it more usable
     def __init__(self, emails: List[IEmail]):
         self.emails = emails
 
@@ -68,7 +69,7 @@ class User(IUser):
             if not email.service:
                 raise AuthenticationError(
                     f"""Authentication Error.
-                    Make sure following {email._type} API has not been authenticated
+                    Make sure following {email._type} API has been authenticated
                     """
                 )
 
@@ -92,4 +93,5 @@ class User(IUser):
         return emails_dict
 
     def summarize_latest_emails(self) -> str:
+        # TODO
         return ""
