@@ -105,10 +105,9 @@ pip install inarrator
     - Now create the following JSON and name it `outlook_credentials.json`. You can get `Application (client) ID` & `Directory (tenant) ID` from overview of your App.
     ```json
     {"application_id":"Application (client) ID",
-    "authority_url":"https://login.microsoftonline.com/{Directory (tenant) ID}",
-    "outlook_scope":["Mail.Read"]}
+    "authority_url":"https://login.microsoftonline.com/{Directory (tenant) ID}"}
     ```
-5. Since OAuth only work https but our redirect URI is localhost, we would have to make the following environment variable
+5. Since OAuth only works on https but our redirect URI is localhost, we have to make the following environment variable
 
 ```console
 export OAUTHLIB_INSECURE_TRANSPORT=1
