@@ -17,7 +17,7 @@ class GPTModel(ISummarizer):
         self.chain = self.load_chain(api_token, model_name)
 
     @classmethod
-    def load_chain(self, api_token: str, model_name: str) -> LLMChain:
+    def load_chain(cls, api_token: str, model_name: str) -> LLMChain:
         llm = ChatOpenAI(openai_api_key=api_token, model_name=model_name, temperature=0)
         prompt = PromptTemplate.from_template(STUFF_EMAIL_PROMPT)
         return load_summarize_chain(

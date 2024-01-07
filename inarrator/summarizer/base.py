@@ -21,7 +21,7 @@ class ISummarizer(ABC):
 
     @classmethod
     @abstractmethod
-    def load_chain(self, api_token: str, model_name: str) -> LLMChain:
+    def load_chain(cls, api_token: str, model_name: str) -> LLMChain:
         """Load a language model chain for summarization.
 
         Args:

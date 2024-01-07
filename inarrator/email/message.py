@@ -34,7 +34,7 @@ class IMessage(ABC):
         """
         pass
 
-    def message_to_document(email: IMessage) -> Document:
+    def message_to_document(self) -> Document:
         """
         Converts an email message into a Document.
 
@@ -44,7 +44,7 @@ class IMessage(ABC):
         Returns:
             Document: A Langchain Document instance.
         """
-        return Document(page_content=str(email))
+        return Document(page_content=str(self))
 
     def __str__(self) -> str:
         """Returns a string representation of the message."""
