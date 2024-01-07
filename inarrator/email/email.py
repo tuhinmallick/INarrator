@@ -122,8 +122,9 @@ class Gmail(IEmail):
         # Now get individual messages payload and format them
         for message_dict in messages:
             raw_message_payload = self.get_email(user_email="me", gmail_id=message_dict.get("id"))
-            message = GmailMessage.parse_message(raw_message_payload=raw_message_payload)
-            if message:
+            if message := GmailMessage.parse_message(
+                raw_message_payload=raw_message_payload
+            ):
                 messages_list.append(message)
         return messages_list
 
@@ -158,9 +159,7 @@ class OutLook(IEmail):
     def _token_expired(self, token_id_claim: Dict) -> bool:
         """Checks if the given token has expired or not"""
         now = datetime.datetime.now()
-        if datetime.datetime.fromtimestamp(token_id_claim["exp"]) < now:
-            return True
-        return False
+        return datetime.datetime.fromtimestamp(token_id_claim["exp"]) < now
 
     def authenticate(self, **kwargs: Any) -> None:
         if not os.path.exists("outlook_token.json"):
@@ -190,8 +189,9 @@ class OutLook(IEmail):
         messages_list = []
         for message in messages:
             raw_message_payload = self.get_email(outlook_id=message.get("id")).json()
-            message = OutlookMessage.parse_message(raw_message_payload=raw_message_payload)
-            if message:
+            if message := OutlookMessage.parse_message(
+                raw_message_payload=raw_message_payload
+            ):
                 messages_list.append(message)
         return messages_list
 

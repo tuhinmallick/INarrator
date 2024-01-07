@@ -16,7 +16,7 @@ class HuggingFaceModel(ABC):
         self.chain = self.load_chain(api_token, model_name)
 
     @classmethod
-    def load_chain(self, api_token: str, model_name: str) -> LLMChain:
+    def load_chain(cls, api_token: str, model_name: str) -> LLMChain:
         return LLMChain(
             llm=HuggingFaceHub(huggingfacehub_api_token=api_token, repo_id=model_name),
             prompt=PromptTemplate(
